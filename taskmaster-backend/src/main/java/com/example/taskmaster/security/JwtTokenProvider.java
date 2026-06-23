@@ -3,7 +3,6 @@ package com.example.taskmaster.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -15,8 +14,11 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    @Autowired
-    private JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
+
+    public JwtTokenProvider(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
 
     // Tạo key đúng chuẩn HS512 cho 0.12.6
     private SecretKey getSigningKey() {
@@ -36,7 +38,7 @@ public class JwtTokenProvider {
                 .claim("roles", authorities)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(getSigningKey())  // ← đúng cú pháp 0.12.6
+                .signWith(getSigningKey()) // ← đúng cú pháp 0.12.6
                 .compact();
     }
 
@@ -56,7 +58,7 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())  // ← đúng cú pháp 0.12.6
+                .verifyWith(getSigningKey()) // ← đúng cú pháp 0.12.6
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -67,7 +69,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(getSigningKey())  // ← đúng cú pháp 0.12.6
+                    .verifyWith(getSigningKey()) // ← đúng cú pháp 0.12.6
                     .build()
                     .parseSignedClaims(token);
             return true;
